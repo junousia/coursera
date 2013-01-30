@@ -13,14 +13,21 @@ ciphers = ["315c4eeaa8b5f8aaf9174145bf43e1784b8fa00dc71d885a804e5ee9fa40b16349c1
            "271946f9bbb2aeadec111841a81abc300ecaa01bd8069d5cc91005e9fe4aad6e04d513e96d99de2569bc5e50eeeca709b50a8a987f4264edb6896fb537d0a716132ddc938fb0f836480e06ed0fcd6e9759f40462f9cf57f4564186a2c1778f1543efa270bda5e933421cbe88a4a52222190f471e9bd15f652b653b7071aec59a2705081ffe72651d08f822c9ed6d76e48b63ab15d0208573a7eef027",
            "466d06ece998b7a2fb1d464fed2ced7641ddaa3cc31c9941cf110abbf409ed39598005b3399ccfafb61d0315fca0a314be138a9f32503bedac8067f03adbf3575c3b8edc9ba7f537530541ab0f9f3cd04ff50d66f1d559ba520e89a2cb2a83",
            ]
-secrets = "32510ba9babebbbefd001547a810e67149caee11d945cd7fc81a05e9f85aac650e9052ba6a8cd8257bf14d13e6f0a803b54fde9e77472dbff89d71b57bddef121336cb85ccb8f3315f4b52e301d16e9f52f904"   
+secret = "32510ba9babebbbefd001547a810e67149caee11d945cd7fc81a05e9f85aac650e9052ba6a8cd8257bf14d13e6f0a803b54fde9e77472dbff89d71b57bddef121336cb85ccb8f3315f4b52e301d16e9f52f904"   
 
 xors = [] 
 
-spaces = {}
+key = {}
+
+def printChar(c):
+    sys.stdout.write(c)
 
 def checkBit(a, bit):
     return True if ord(a)&(1<<bit) > 0 else False
+
+def tryKey(secret, key):
+    for index, c in enumerate(secret):
+        printChar(c)
 
 def strxor(a, b):     # xor two strings of different lengths
     if len(a) > len(b):
@@ -46,9 +53,13 @@ def main():
     for xorIndex, xor in enumerate(xors):
         for letterIndex, letter in enumerate(xor):
             if checkBit(letter, 6):
-                spaces[letterIndex] = [ciphers[xorIndex + 1], ciphers[0]]
-    
-    print len(spaces)
+                try:
+                    key[letterIndex] = key.get(letterIndex, []) + [strxor(' ',ciphers[0][letterIndex])]
+                    key[letterIndex] = key.get(letterIndex, []) + [strxor(" ",ciphers[xorIndex + 1][letterIndex])]
+                    print "added potential keys {} and {} to index {}".format(hex(ord(strxor(' ',ciphers[xorIndex + 1][letterIndex]))), hex(ord(strxor(' ',ciphers[0][letterIndex]))), letterIndex)
+                except IndexError:
+                    print "key adding failed"
+    tryKey(secret, key)
 
 if __name__ == "__main__":
     main()
