@@ -17,6 +17,8 @@ secrets = "32510ba9babebbbefd001547a810e67149caee11d945cd7fc81a05e9f85aac650e905
 
 xors = [] 
 
+spaces = {}
+
 def checkBit(a, bit):
     return True if ord(a)&(1<<bit) > 0 else False
 
@@ -36,10 +38,17 @@ def encrypt(key, msg):
     return c
 
 def main():
-    for i in range(len(ciphers) - 1):
-        xors.append(strxor(ciphers[i], ciphers[i+1]))
+    for i in range(2,len(ciphers)):
+        xors.append(strxor(ciphers[0], ciphers[i]))
 
     print "amount of xors " + str(len(xors))
+
+    for xorIndex, xor in enumerate(xors):
+        for letterIndex, letter in enumerate(xor):
+            if checkBit(letter, 6):
+                spaces[letterIndex] = [ciphers[xorIndex + 1], ciphers[0]]
+    
+    print len(spaces)
 
 if __name__ == "__main__":
     main()
