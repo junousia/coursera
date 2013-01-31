@@ -1,7 +1,6 @@
 import re
 import sys
 from collections import Counter
-import string
 
 secret = "32510ba9babebbbefd001547a810e67149caee11d945cd7fc81a05e9f85aac650e9052ba6a8cd8257bf14d13e6f0a803b54fde9e77472dbff89d71b57bddef121336cb85ccb8f3315f4b52e301d16e9f52f904"   
 
@@ -38,8 +37,7 @@ def main():
                 if re.match("[a-zA-Z]", c):
                     key1 = chr(ord(ciphers[i][index])^32)
                     key2 = chr(ord(ciphers[j][index])^32)
-                    keys[index] = keys.get(index, []) + [key1]
-                    keys[index] = keys.get(index, []) + [key2]
+                    keys[index] = keys.get(index, []) + [key1, key2]
 
     key = getKey()
     
