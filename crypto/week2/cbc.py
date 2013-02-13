@@ -1,12 +1,13 @@
+#! /usr/local/bin/python
 from Crypto.Cipher import AES
 from Crypto.Util import Counter
 import os
 import array
 import binascii
 
-BS = 16
-pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS) 
-unpad = lambda s : s[0:-ord(s[-1])]
+BLOCK_SIZE = 16
+pad = lambda s: s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * chr(BLOCK_SIZE - len(s) % BLOCK_SIZE) 
+unpad = lambda s, l : s[:-l]
 
 def xor(first, second):
     output = []
@@ -23,23 +24,24 @@ def cbc_decrypt(iv, cipher, key):
     decryptor = AES.new(key)
     output = []
 
-    for chunk in chunks(cipher, BS):
+    for chunk in chunks(cipher, BLOCK_SIZE):
         output = output + xor(map(ord, decryptor.decrypt(chunk)), iv_arr)
         iv_arr = bytearray(chunk)
 
     return "".join(output)
 
+
 def ctr_decrypt(iv, cipher, key):
     iv_arr = bytearray(iv)
     decryptor = AES.new(key)
     output = []
-    cipher = pad(cipher)
+    padded = pad(cipher)
     ctr = Counter.new(128, initial_value=long(iv.encode('hex'), 16))
 
-    for chunk in chunks(cipher, BS):
+    for chunk in chunks(padded, BLOCK_SIZE):
         output = output + xor(map(ord, decryptor.encrypt(ctr())), bytearray(chunk))
-    return "".join(output)
 
+    return unpad("".join(output), len(padded) - len(cipher))
 
 key='140b41b22a29beb4061bda66b6747e14'.decode('hex')
 iv='4ca00ff4c898d61e1edbf1800618fb2828a226d160dad07883d04e008a7897ee2e4b7465d5290d0c0e6c6822236e1daafb94ffe0c5da05d9476be028ad7c1d81'.decode('hex')[:16]
